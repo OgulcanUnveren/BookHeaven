@@ -9,6 +9,7 @@ class Book(models.Model):
     product_code = models.CharField(max_length=262,null=True,blank=True)
     price = models.IntegerField(null=True,blank=True)
     tax = models.IntegerField(null=True,blank=True)
+    pdf = models.FileField(upload_to ='books/',blank=True)
     def __str__(self):
         return self.product_code
     class Meta:

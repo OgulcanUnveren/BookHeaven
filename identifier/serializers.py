@@ -8,18 +8,20 @@ from user.serializers import UserSerializer
 
 
 class BookSerializer(serializers.Serializer):
-    id = serializers.CharField(required=True,allow_blank=True)
+    
     product_code = serializers.CharField(required=True,allow_blank=True)
     price = serializers.CharField(required=True,allow_blank=True)
     tax = serializers.CharField(required=True,allow_blank=True)
-    
+    pdf = serializers.FileField(allow_empty_file=False)
     def create(self, validated_data):
         return Book.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
-        instance.product_code = validated_data.get('product_code', instance.product_code).lower()
-        instance.price = validated_data.get('price', instance.fiyat).lower()
-        instance.tax = validated_data.get('tax', instance.tax).lower()
+        instance.product_code = validated_data.get('product_code', instance.product_code)
+        instance.price = validated_data.get('price', instance.fiyat)
+        instance.tax = validated_data.get('tax', instance.tax)
+        instance.pdf = validated_data.get('pdf', instance.pdf)
+        
         instance.save()
         return instance
 class SuggestedBookSerializer(serializers.Serializer):

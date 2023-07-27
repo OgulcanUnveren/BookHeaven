@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
+
 from identifier.models import Book,Classes,School,SuggestedBooks
 from identifier.serializers import BookSerializer,ClassesSerializer,SchoolSerializer,SuggestedBookSerializer
 from rest_framework.views import APIView
@@ -42,17 +43,26 @@ class SuggestedBooksDetail(APIView):
 class BookList(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminOrAnonymousUser]
+    
     def get(self, request, format=None):
         books = Book.objects.all()
         serializer = BookSerializer(books, many=True)
         return Response(serializer.data)
     #test
     def post(self, request, format=None):
-        data = JSONParser().parse(request)
+        
+        #data = JSONParser().parse(request)
+        data = {
+            "product_code": request.POST.get('product_code', None),
+            "price": request.POST.get('price', None),
+            "tax": request.POST.get('tax', None),
+
+            "pdf": request.FILES.get('pdf', None),
+            }
         serializer = BookSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data.lower(), status=201)
+            return Response(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
 
 class BookDetail(APIView):
