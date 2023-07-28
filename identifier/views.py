@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-
+import magic
 from identifier.models import Book,Classes,School,SuggestedBooks
 from identifier.serializers import BookSerializer,ClassesSerializer,SchoolSerializer,SuggestedBookSerializer
 from rest_framework.views import APIView
@@ -39,10 +39,12 @@ class SuggestedBooksDetail(APIView):
         serializer = SuggestedBookSerializer(books)
         return Response(serializer.data)
 
-
+def check_in_memory_mime(in_memory_file):
+        mime = magic.from_buffer(in_memory_file.read(), mime=True)
+        return mime
 class BookList(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminOrAnonymousUser]
+#    authentication_classes = [JWTAuthentication]
+ #   permission_classes = [IsAdminOrAnonymousUser]
     
     def get(self, request, format=None):
         books = Book.objects.all()
@@ -59,12 +61,19 @@ class BookList(APIView):
 
             "pdf": request.FILES.get('pdf', None),
             }
-        serializer = BookSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return JsonResponse(serializer.errors, status=400)
-
+        if check_in_memory_mime(request.FILES.get('pdf', None)) == 'application/pdf':
+            extension = "pdf"
+            book = request.FILES.get('pdf', None)
+            if book.name.endswith(extension):
+                serializer = BookSerializer(data=data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=201)
+                return JsonResponse(serializer.errors, status=400)
+            else:
+                return Response("error:Wrong extension")
+        else:
+            return Response("error:Wrong mime type")
 class BookDetail(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminOrAnonymousUser]
