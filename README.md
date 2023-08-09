@@ -4,3 +4,4 @@
 - DRF
 - Class Based Views
 - Swagger
+- ElasticSearch
