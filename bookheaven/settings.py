@@ -27,7 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+# Elasticsearch
+ELASTICSEARCH_DSL = {
+    "default": {"hosts": "127.0.0.1:9200"},
+}
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,13 +42,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-    
+    'django_elasticsearch_dsl'  ,
+    'django_elasticsearch_dsl_drf',  
     'drf_yasg',
     'user',
     'identifier',
 ]
+
 REST_FRAMEWORK = {
      'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema' ,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 25,
 'DEFAULT_AUTHENTICATION_CLASSES': (
     'rest_framework.authentication.BasicAuthentication',
     'rest_framework.authentication.TokenAuthentication',

@@ -4,10 +4,16 @@ from rest_framework.relations import PrimaryKeyRelatedField
 import time
 from user.models import User
 
-
+ARTICLE_TYPES = [
+    ('UN', 'Unspecified'),
+    ('TU', 'Tutorial'),
+    ('RS', 'Research'),
+    ('RW', 'Review'),
+]
 class Book(models.Model):
     product_code = models.CharField(max_length=262,null=True,blank=True)
     price = models.IntegerField(null=True,blank=True)
+    type = models.CharField(max_length=2, choices=ARTICLE_TYPES, default='UN')
     tax = models.IntegerField(null=True,blank=True)
     pdf = models.FileField(upload_to ='books/',blank=True)
     def __str__(self):
@@ -16,8 +22,18 @@ class Book(models.Model):
         verbose_name_plural = "Books"    
 class SuggestedBooks(models.Model):
     suggester = models.ForeignKey(User, on_delete=models.CASCADE)
+    type = models.CharField(max_length=2, choices=ARTICLE_TYPES, default='UN')
     books = models.ManyToManyField(Book,blank=True,verbose_name="Books")
     advisory = models.TextField(blank=True)
+    def type_to_string(self):
+        if self.type == 'UN':
+            return 'Unspecified'
+        elif self.type == 'TU':
+            return 'Tutorial'
+        elif self.type == 'RS':
+            return 'Research'
+        elif self.type == 'RW':
+            return 'Review'
     def __str__(self):
         return self.suggester.username
     class Meta:

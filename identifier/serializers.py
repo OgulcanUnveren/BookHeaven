@@ -3,7 +3,14 @@ from rest_framework import serializers
 from identifier.models import Book,Classes,School,SuggestedBooks
 from user.models import User
 from user.serializers import UserSerializer
+from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 
+from .documents import BookDocument
+
+class BookDocumentSerializer(DocumentSerializer):
+    class Meta:
+        document = BookDocument
+        fields = ("id", "suggester", "advisory", "books",)
 
 
 
@@ -18,14 +25,14 @@ class BookSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         instance.product_code = validated_data.get('product_code', instance.product_code)
-        instance.price = validated_data.get('price', instance.fiyat)
+        instance.price = validated_data.get('price', instance.price)
         instance.tax = validated_data.get('tax', instance.tax)
         instance.pdf = validated_data.get('pdf', instance.pdf)
         
         instance.save()
         return instance
 class SuggestedBookSerializer(serializers.Serializer):
-    suggester = UserSerializer()
+    suggester = serializers.CharField(source='suggester.username')
     books = BookSerializer(many=True)
     advisory = serializers.CharField(required=True,allow_blank=True)
     class Meta:
